@@ -19,6 +19,7 @@ functions{
 }
   data {
   int<lower=0> T; // Time horizon
+  int<lower=0> T0; // Used for training
   int<lower=0> P; // Population
   int C0[T]; // Cummulative infection
   int R0[T]; // Recovered
@@ -44,7 +45,7 @@ model {
 
     init_inf ~ gamma(1, 1);
     C0[1] ~ poisson(init_inf);
-    for (t in 1:T-1){
+    for (t in 1:T0-1){
       C0[t+1] - C0[t] ~ poisson(q * NI[t]);
       D0[t+1] - D0[t] ~ poisson(d * (C0[t] - R0[t] - D0[t]));   
       R0[t+1] - R0[t] ~ poisson(a * (C0[t] - R0[t] - D0[t]));
