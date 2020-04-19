@@ -25,7 +25,7 @@ functions{
 } transformed data{
   real x_r[1];
   int x_i[1];
-  real times[T];
+  real times[T-1];
   x_r[1] = P;
   x_i[1] = 0;
   for (t in 1:T-1){
@@ -40,14 +40,14 @@ parameters {
   real<lower=0, upper=1> q;
   }
 transformed parameters {
-  real results[T, 2] ;
+  real results[T-1, 2] ;
   real initial_state[2];
   real theta[2];
   initial_state[1] = init_inf;
   initial_state[2] = P;
   theta[1] = a+d;
   theta[2] = b;
-  results = integrate_ode_rk45(ni_eq, initial_state, 0, times, theta, x_r, x_i);
+  results = integrate_ode_bdf(ni_eq, initial_state, 0, times, theta, x_r, x_i, 0.1, 1, 500000);
 }
 model {
     a ~ beta(1, 1);
