@@ -101,7 +101,7 @@ model {
     }
 }
 generated quantities {
-  vector[T-1] log_lik;
+  vector[T0-1] log_lik;
   real v_log_lik;
   
   for (t in 1:T0-1) {
