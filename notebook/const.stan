@@ -73,6 +73,6 @@ generated quantities {
   
   v_log_lik=0;
   for(t in T0:T-1){
-    v_log_lik += poisson_lpmf(C0[t+1] - C0[t] | fmax(q * results[t, 1], 0.1));
+    v_log_lik += poisson_lpmf(C0[t+1] - C0[t] | q * results[t, 1]);
   }
 }
