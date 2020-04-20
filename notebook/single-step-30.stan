@@ -66,12 +66,12 @@ model {
     b0 ~ gamma(1, 1);
     b1 ~ gamma(b0, 1);
     theta_b ~ gamma(1, 1);
-    b_date ~ pareto(30, 1);
+    b_date ~ uniform(30, 50);
 
     q0 ~ beta(1, 1);
     q1 ~ beta(q0, 1-q0);
     theta_q ~ gamma(1, 1);
-    q_date ~ pareto(30, 1);
+    q_date ~ uniform(30, 50);
 
     init_inf ~ gamma(1, 1);
     C0[1] ~ poisson(q[1] * init_inf);
