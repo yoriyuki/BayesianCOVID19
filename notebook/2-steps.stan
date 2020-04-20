@@ -79,16 +79,16 @@ model {
     b0 ~ gamma(1, 1);
     b1 ~ gamma(1, 1);
     theta_b ~ gamma(1, 1);
-    b_date ~ uniform(0, T-14);
-    b2_date ~ uniform(b_date+14, T);
+    b_date ~ uniform(30, 60);
+    b2_date ~ uniform(60, T);
     b2 ~ gamma(1, 1);
     theta_b2 ~ gamma(1, 1);
 
     q0 ~ beta(1, 1);
     q1 ~ beta(1, 1);
     theta_q ~ gamma(1, 1);
-    q_date ~ uniform(0, T-14);
-    q2_date ~ uniform(q_date+14, T);
+    q_date ~ uniform(30, T-30);
+    q2_date ~ uniform(q2_date+30, T);
     q2 ~ beta(1, 1);
     theta_q2 ~ gamma(1, 1);
 
