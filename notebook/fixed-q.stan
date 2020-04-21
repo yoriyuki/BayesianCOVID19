@@ -61,7 +61,7 @@ model {
     b0 ~ beta(1, 1);
     b1 ~ beta(1, 1);
     theta_b ~ gamma(1, 1);
-    b_date ~ uniform(30, T);
+    b_date ~ uniform(0, T);
 
     q ~ beta(1, 1);
 
