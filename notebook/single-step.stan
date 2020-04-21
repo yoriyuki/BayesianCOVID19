@@ -1,5 +1,5 @@
 functions{
-  vector ni(real a, real d, 
+  vector ni(real a, real d, real p,
             real b0, real b1, real theta_b, real b_date, 
             real init_inf, real P, int T){
     real C;
@@ -17,7 +17,7 @@ functions{
     C = 0;
     for (t in 1:T-1){
       b = b0 + (b1 - b0) * inv_logit(theta_b * (t - b_date));
-      NI[t] = I * b * (1 - C/P);
+      NI[t] = (P - C) * p * (1 - pow(1 - b, I));
       NR = a * I;
       ND = d * I;
       D = D + ND;
@@ -39,8 +39,9 @@ data {
 }
 parameters {
   real<lower=0> init_inf;
-  real<lower=0> b0;
-  real<lower=0> b1;
+  real<lower=0, upper=1> p;
+  real<lower=0, upper=1> b0;
+  real<lower=0, upper=1> b1;
   real<lower=0> theta_b;
   real<lower=0, upper=T> b_date;
   real<lower=0, upper=1> q0;
@@ -57,14 +58,15 @@ transformed parameters {
    for (t in 1:T-1){
     q[t] = q0 + (q1 - q0) * inv_logit(theta_q * (t - q_date));
   }
-  NI = ni(a, d, b0, b1, theta_b, b_date, init_inf, P, T);
+  NI = ni(a, d, p, b0, b1, theta_b, b_date, init_inf, P, T);
 }
 model {
     a ~ beta(1, 1);
     d ~ beta(1, 1);
 
-    b0 ~ gamma(1, 1);
-    b1 ~ gamma(1, 1);
+    p ~ beta(1, 1);
+    b0 ~ beta(1, 1);
+    b1 ~ beta(1, 1);
     theta_b ~ gamma(1, 1);
     b_date ~ uniform(30, T);
 
