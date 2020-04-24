@@ -42,7 +42,7 @@ parameters {
     for (t in 1:T-1){
       growth = (1 - pow(1- p, b * I / (P - D))) * (P - C);
       if (t != T0){
-        NI[t] ~ normal(growth, growth);
+        NI[t] ~ normal(growth, sqrt(growth));
       }
       NR = a * I;
       ND = d * I;

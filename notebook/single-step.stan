@@ -19,22 +19,22 @@ parameters {
   real<lower=0> theta_q;
   real<lower=0, upper=T> q_date;
   vector<lower=0>[T-1] NI;
-
   real<lower=0, upper=1> a;
   real<lower=0, upper=1> d;
   }  
 transformed parameters {
-  vector[T-1] q;
+   vector[T-1] q;
    for (t in 1:T-1){
     q[t] = q0 + (q1 - q0) * inv_logit((t - q_date) / theta_q);
   }
 }
 model {
     real C;
-    real R;
     real D;
     real I;
     real b;
+    real NR;
+    real ND;
     real growth;
     
     a ~ beta(1, 1);
@@ -54,23 +54,27 @@ model {
     init_inf ~ gamma(1, 1);
     
     I = init_inf;
-    R = 0;
     D = 0;
     C = init_inf;
     C0[1] ~ poisson(q[1] * init_inf);
     for (t in 1:T-1){
       b = b0 + (b1 - b0) * inv_logit((t - b_date) / theta_b);
-      growth = (1 - pow(1- p, b * I / (P - D))) * (P - C);
+      growth = (1 - pow(1 - p, b * I / (P - D))) * (P - C);
       if (t != T0){
-        NI[t] ~ normal(growth, growth);
+        NI[t] + 0.5 ~ normal(growth, sqrt(fabs(growth)));
+        NR = a*I;
+        ND = d*I;
         C0[t+1] - C0[t] ~ poisson(q[t] * NI[t]);
         D0[t+1] - D0[t] ~ poisson(d * (C0[t] - R0[t] - D0[t]));   
         R0[t+1] - R0[t] ~ poisson(a * (C0[t] - R0[t] - D0[t]));
-      }
-      I = I + NI[t] - (a+d)*I;
-      C = C + NI[t];
-      R = R + a*I;
-      D = D + d*I;
+        I = I + NI[t] - NR - ND;
+        D = D + ND;
+        C = C + NI[t];
+      } else {
+        I = I + NI[t-1] - NR - ND;
+        D = D + ND;
+        C = C + NI[t-1];
+      } 
     }
 }
 generated quantities {
