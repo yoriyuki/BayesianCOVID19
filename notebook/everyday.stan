@@ -9,30 +9,17 @@ data {
 }
 parameters {
   real<lower=0> init_inf;
-  real<lower=0> b0;
-  real<lower=0> b1;
-  real<lower=0> theta_b;
-  real<lower=0, upper=T> b_date;
-  real<lower=0, upper=1> p;
-  real<lower=0, upper=1> q0;
-  real<lower=0, upper=1> q1;
-  real<lower=0> theta_q;
-  real<lower=0, upper=T> q_date;
+  vector<lower=0>[T] b;
+  vector<lower=0, upper=1>[T] q;
   vector<lower=0>[T-1] NI;
   real<lower=0, upper=1> a;
   real<lower=0, upper=1> d;
+  real<lower=0, upper=1> p;
   }  
-transformed parameters {
-   vector[T-1] q;
-   for (t in 1:T-1){
-    q[t] = q0 + (q1 - q0) * inv_logit((t - q_date) / theta_q);
-  }
-}
 model {
     real C;
     real D;
     real I;
-    real b;
     real NR;
     real ND;
     real growth;
@@ -40,16 +27,8 @@ model {
     a ~ beta(1, 1);
     d ~ beta(1, 1);
     p ~ beta(1, 1);
-
-    b0 ~ gamma(1, 1);
-    b1 ~ gamma(1, 1);
-    theta_b ~ gamma(1, 1);
-    b_date ~ uniform(0, T);
-
-    q0 ~ beta(1, 1);
-    q1 ~ beta(1, 1);
-    theta_q ~ gamma(1, 1);
-    q_date ~ uniform(0, T);
+    b[1] ~ gamma(1, 1);
+    q[1] ~ beta(1, 1);
   
     init_inf ~ gamma(1, 1);
     
@@ -58,10 +37,11 @@ model {
     C = init_inf;
     C0[1] ~ poisson(q[1] * init_inf);
     for (t in 1:T-1){
-      b = b0 + (b1 - b0) * inv_logit((t - b_date) / theta_b);
-      growth = (1 - pow(1 - p, b * I / (P - D))) * (P - C);
       if (t != T0){
-        NI[t] ~ normal(growth, sqrt(fmax(growth, 0.1)));
+        growth = (1 - pow(1 - p, b[t] * I / (P - D))) * (P - C);
+        b[t+1] ~ gamma(b[t], 1);
+        q[t+1] ~ beta(q[t], 1-q[t]);
+        NI[t] ~ normal(growth, sqrt(growth));
         NR = a*I;
         ND = d*I;
         C0[t+1] - C0[t] ~ poisson(q[t] * NI[t]);
