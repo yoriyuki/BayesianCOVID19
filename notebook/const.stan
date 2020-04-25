@@ -42,22 +42,18 @@ parameters {
     C0[1] ~ poisson(q * init_inf);
     for (t in 1:T-1){
       growth = (1 - pow(1- p, b * I / (P - D))) * (P - C);
+      NI[t] ~ normal(growth, sqrt(growth));
+      NR = a * I;
+      ND = d * I;
+      D = D + ND;
+      I = I + NI[t] - NR - ND;
+      C = C + NI[t];
+      R = R + NR;
       if (t != T0){
-        NI[t] ~ normal(growth, sqrt(growth));
-        NR = a * I;
-        ND = d * I;
-        D = D + ND;
-        I = I + NI[t] - NR - ND;
-        C = C + NI[t];
-        R = R + NR;
         C0[t+1] - C0[t] ~ poisson(q * NI[t]);
         D0[t+1] - D0[t] ~ poisson(d * (C0[t] - R0[t] - D0[t]));   
         R0[t+1] - R0[t] ~ poisson(a * (C0[t] - R0[t] - D0[t]));
-      } else {
-        I = I + NI[t-1] - NR - ND;
-        D = D + ND;
-        C = C + NI[t-1];
-      } 
+      }
     }
 }
 generated quantities {
