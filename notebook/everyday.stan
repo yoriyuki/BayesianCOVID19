@@ -28,7 +28,7 @@ parameters {
     D[1] = 0;
     for(t in 1:T-1){
         I[t+1] = I[t] + NI[t] - (a+d) * I[t];
-        C[t+1] = C[t+1] + NI[t];
+        C[t+1] = C[t] + NI[t];
         R[t+1] = R[t] + a * I[t];
         D[t+1] = D[t] + d * I[t];
     }
