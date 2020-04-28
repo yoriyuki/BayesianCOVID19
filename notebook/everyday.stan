@@ -16,7 +16,6 @@ parameters {
   vector<lower=0>[T-1] NI;
   real<lower=0, upper=1> a;
   real<lower=0, upper=1> d;
-  real<lower=0, upper=1> p;
   }  
 model {
     real C;
@@ -28,7 +27,6 @@ model {
     
     a ~ beta(1, 1);
     d ~ beta(1, 1);
-    p ~ beta(1, 1);
     b_beta ~ gamma(1, 1);
     q_factor ~ gamma(1, 1);
   
@@ -46,7 +44,7 @@ model {
         b[t] ~ gamma(b[t-1], b_beta);
         q[t] ~ beta(q[t-1]*q_factor, (1-q[t])*q_factor);
       }
-      growth = (1 - pow(1 - p, b[t] * I / (P - D))) * (P - C);
+      growth = b[t] * I * (1 - C/P);
       NI[t] ~ normal(growth, sqrt(growth));
       NR = a*I;
       ND = d*I;

@@ -10,7 +10,6 @@ data {
 parameters {
   real<lower=0> init_inf;
   real<lower=0> b;
-  real<lower=0, upper=1> p;
   real<lower=0, upper=1> q;
   vector<lower=0>[T-1] NI;
 
@@ -27,8 +26,6 @@ parameters {
     
     a ~ beta(1, 1);
     d ~ beta(1, 1);
-    p ~ beta(1, 1);
-
     b ~ gamma(1, 1);
 
     q ~ beta(1, 1);
@@ -41,7 +38,7 @@ parameters {
     C = 0;
     C0[1] ~ poisson(q * init_inf);
     for (t in 1:T-1){
-      growth = (1 - pow(1- p, b * I / (P - D))) * (P - C);
+      growth = b * I * (1 - C/P);
       NI[t] ~ normal(growth, sqrt(growth));
       NR = a * I;
       ND = d * I;
