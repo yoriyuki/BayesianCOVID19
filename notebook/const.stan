@@ -15,37 +15,34 @@ parameters {
 
   real<lower=0, upper=1> a;
   real<lower=0, upper=1> d;
-  }  model {
-    real C;
-    real R;
-    real I;
-    real NR;
-    real ND;
-    real D;
+  } transformed parameters {
+    vector<lower=0>[T] I;
+    vector<lower=0>[T] C;
+    vector<lower=0>[T] R;
+    vector<lower=0>[T] D;
+
+    I[1] = init_inf;
+    C[1] = init_inf;
+    R[1] = 0;
+    D[1] = 0;
+    for(t in 1:T-1){
+       I[t+1] = I[t] + NI[t] - (a+d) * I[t];
+       C[t+1] = C[t] + NI[t];
+       R[t+1] = R[t] + a * I[t];
+       D[t+1] = D[t] + d * I[t];
+    }
+  } model {
     real growth;
     
     a ~ beta(1, 1);
     d ~ beta(1, 1);
-    b ~ gamma(1, 1);
+    b ~ student_t(3, 0, 1);
 
     q ~ beta(1, 1);
-  
-    init_inf ~ gamma(1, 1);
-    
-    I = init_inf;
-    R = 0;
-    D = 0;
-    C = 0;
     C0[1] ~ poisson(q * init_inf);
     for (t in 1:T-1){
-      growth = b * I * (1 - C/P);
+      growth = b * I[t] * (1 - C[t]/P);
       NI[t] ~ normal(growth, sqrt(growth));
-      NR = a * I;
-      ND = d * I;
-      D = D + ND;
-      I = I + NI[t] - NR - ND;
-      C = C + NI[t];
-      R = R + NR;
       if (t != T0){
         C0[t+1] - C0[t] ~ poisson(q * NI[t]);
         D0[t+1] - D0[t] ~ poisson(d * (C0[t] - R0[t] - D0[t]));   
