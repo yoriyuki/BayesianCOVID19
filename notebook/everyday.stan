@@ -9,8 +9,10 @@ data {
 }
 parameters {
   real<lower=0> init_inf;
+  real<lower=0> b_beta;
   vector<lower=0>[T-1] b;
   vector<lower=0, upper=1>[T-1] q;
+  real<lower=0> q_factor;
   vector<lower=0>[T-1] NI;
   real<lower=0, upper=1> a;
   real<lower=0, upper=1> d;
@@ -27,6 +29,8 @@ model {
     a ~ beta(1, 1);
     d ~ beta(1, 1);
     p ~ beta(1, 1);
+    b_beta ~ gamma(1, 1);
+    q_factor ~ gamma(1, 1);
   
     init_inf ~ gamma(1, 1);
     
@@ -39,8 +43,8 @@ model {
         b[t] ~ gamma(1, 1);
         q[t] ~ beta(1, 1);
       } else {
-        b[t] ~ gamma(b[t-1], 1);
-        q[t] ~ beta(q[t-1], 1-q[t]);
+        b[t] ~ gamma(b[t-1], b_beta);
+        q[t] ~ beta(q[t-1]*q_factor, (1-q[t])*q_factor);
       }
       growth = (1 - pow(1 - p, b[t] * I / (P - D))) * (P - C);
       NI[t] ~ normal(growth, sqrt(growth));
