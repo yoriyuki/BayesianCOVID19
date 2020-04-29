@@ -52,7 +52,7 @@ Diego Caccavo~\cite{Caccavo2020} and independently Peter Turchin~\cite{Turchin20
 Parameters govern these functions are estimated by minimizing the sum-of-square-error.
 However, using the sum-of-square method causes over-fitting and always favors a complex model, therefore it is not suitable to access policy effectiveness.
 Further, fitting the SIRD model in the early stage of infection is difficult, as pointed out in stat-exchange~\footnote{https://stats.stackexchange.com/questions/446712/fitting-sir-model-with-2019-ncov-data-doesnt-conververge}.
-Using a Bayesian method, we avoid these problems to some degree, because a Bayesian method estimates parameter distribution instead of the point estimate.
+Using a Bayesian method, we avoid these problems to some degree, because a Bayesian method estimates parameter distribution instead of a point estimate.
 Thus, we can assess the degree of confidence of each parameter.
 Further, by well-established statistical methods, we can compare the explanatory power of different models.
 
@@ -90,7 +90,7 @@ Therefore, we introduce the reporting rate $q$ and let the number of cumulative 
  D_{\text{obs}}(t+1) &= D_{\text{obs}}(t) + ND_{\text{obs}}(t)
 \end{align}
 
-We assume that $b$ and $q$ change day to day bases while other parameters are fixed.
+We assume that $\beta$ and $q$ change day to day bases while other parameters are fixed.
 To get a reasonable estimate, we assume prior distributions somewhat arbitrary chosen.
 \begin{gather}
  S(0) = I(0) \sim \textup{Student\_t}(3, 0, 1)\\
@@ -99,7 +99,7 @@ To get a reasonable estimate, we assume prior distributions somewhat arbitrary c
  \beta(t+1) \sim \textup{Student\_t}(3, \beta(t), \sigma_b)\\
  q(t+1) \sim \textup{Beta}(\alpha_q q(t), \alpha_q(1 - q(t)))
 \end{gather}
-where $\sigma_b ~ \textup{Gamma}(1, 1)$ and $\alpha_q ~ \textup{Gamma}(1, 1)$.
+where $\sigma_b \sim \textup{Gamma}(1, 1)$ and $\alpha_q \sim \textup{Gamma}(1, 1)$.
 To make our model robust, we choose Student-t as a prior for $\beta$.
 
 % \subsection{Implementation}
@@ -129,18 +129,18 @@ Parameter estimation used 2,000 iterations with 1,000 iterations for warm-up and
 Four (default number of Stan) independent computations were performed simultaneously and used to check convergence.
 $\hat{R}$~\cite{vehtari2019rank}, which measures convergence, were excellent, within $\hat{R} < 1.1$ for all parameters. 
 
-To make sure that our results are meaningful, we compared the performance of our model with a model (we refer it by ``the constant model''), which assumes constant $b$ and $q$.
+To make sure that our results are meaningful, we compared the performance of our model with a model (we refer it by ``the constant model''), which assumes constant $\beta$ and $q$.
 Parameters were estimated for the constant model in the same way and LOO-CV, a standard measure of model performance, was compared.
 Because the exact computation of LOO-CV is computationally expensive, approximation PSIS-LOO-CV~\cite{Vehtari2017} and WAIC~\cite{watanabe2010asymptotic} were compared (Table~\ref{tbl:IC}).
-Our model outperforms the const model respect to both measures.
-However, the tool reported high Pareto-k for importance weight distribution, which indicates that the model is not robust and parameter estimate depends too much on specific data points.
+Our model outperforms the constant model respect to both measures.
+However, the tool reported high Pareto-k for the importance weight distribution, which indicates that the model is not robust and parameter estimate depends too much on specific data points.
 In such a case, both measure is not very reliable.
 
 
 \begin{table}[h]
 \begin{center}
 \begin{tabular}{lrr} \toprule
-Model & PSI-LOO & WAIC \\ \midrule 
+Model & PSIS-LOO & WAIC \\ \midrule 
 Const & 2643.40 &  3293.83 \\ 
 Daily Change & 654.07 & 607.195 \\
 \bottomrule\\
@@ -163,7 +163,7 @@ Because the Bayesian estimation gives a distribution of parameters, the lower (2
  \caption{ change over time of $R$}
  \label{fig:b}
 \end{figure}
-The first downward trend until may not be very reliable because there is a few data for infection.
+The first downward trend may not be very reliable because there is a few data for infection.
 The downward trend from the mid. February trend until the mid. March could be explained by public awareness and tracking effort of infection.
 After the mid. March, the tracking effort might be overwhelmed, thus created an upward trend until the beginning of April, when ``the state of emergency'' was declared to major urban areas.
 Since then, there was a slow downward trend, but it is unclear how long it will continue.
@@ -195,7 +195,7 @@ We compare the result with Korea (Fig.~\ref{fig:b-China}) and China (Fig.~\ref{f
     \label{fig:b-China}
 \end{figure}
 Both show excellent convergence ($\hat{R}$) and model selection favors the daily-change model over the constant model.
-Both indicate clear downward trend and now $R < 0$, showing these countries are about exiting from epidemic.
+Both indicate clear downward trend and now $R < 0$, showing these countries are about exiting from the epidemic.
 
 We also applied our method to Italy, for which the our method did not converge, and Pakistan, for which we need to exclude the data until Mar 1, 2020 to achieve convergence.
 Therefore, the results of these countries are not shown here.
