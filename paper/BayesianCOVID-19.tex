@@ -1,6 +1,7 @@
 \documentclass{amsart}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{booktabs}
 \title{Bayesian modeling of COVID-19 epidemic: Japanese case}
 \author{Yoriyuki Yamagata}
 \address{National Institute of Advanced Industrial Science and Technology (AIST),
@@ -13,7 +14,7 @@
 \maketitle
 
 \begin{abstract}
- We estimate the daily change of a ``contact frequency'' and reporting rate in Japan by a Bayesian method.
+ We estimate the daily change of $R$ (the reproducing rate) and reporting rate of COVID-19 infection in Japan by a Bayesian method.
  The estimate reveals a recent downward trend.
  Although our analysis is preliminary, this may suggest that Japanese policy had some impact on the spread of infection.
 \end{abstract}
@@ -34,10 +35,10 @@ Thus the effectiveness of these policies is questionable.
 Many people are still commuting to their office because many companies lack the necessary ability to allow their employees to work from home.
 Many small restaurants and cafes are still running their business because of the lack of financial compensation.
 
-In this paper, we apply a Bayesian method to estimate daily changes of a ``contact parameter'', which determines the speed of infection, and reporting rate.
-The result revealed a recent downward trend of the ``contact frequency''.
+In this paper, we apply a Bayesian method to estimate daily changes of $R$ (the regeneration rate of infection), which determines the speed of infection, and reporting rate.
+The result revealed a recent downward trend of $R$.
 Thus, although our analysis is preliminary, this may indicate that Japanese policy has some effect against COVID-19 infection.
-However, the reduction of ``contact frequency'' only reaches the level of the minimum achieved around mid-March, thus it would not be sufficient to prevent the spread of infection yet.
+However, the reduction of $R$ only reaches the level of the minimum achieved around the mid-March, thus it would not be sufficient to prevent the spread of infection yet.
 
 \section{Related works}
 
@@ -64,20 +65,10 @@ They use parameters estimated from studies of clinical cases while we use a pure
 
 \subsection{Model}
 
-We use the well-known SIRD model but make some modifications.
-Bayesian estimation requires a large number of simulation runs, so solving ordinary differential equations is too computationally expensive.
-Therefore, we replace ordinary differential equations to difference equations.
-However, this causes numerical instability.
-To mitigate instability, we split $\beta$ in SIRD model into a ``contact frequency'' $b$ and infection probability $p$.
-Let $S$ be the number of susceptible people, $I$ that of infected people, $D$ that of death and $P$ population.
-The probability of that one susceptible individual will be infected for each time step is estimated by $1 - (1 - p)^{b I / (P - D)}$.
-We can introduce the ``quarantine measure'' $\alpha$, which indicates the ratio of interaction between infected people and uninfected people, as $1 - (1 - p)^{b \alpha I / (P - D)}$.
-However, this cannot be distinguished by the equation above, so we use $1 - (1 - p)^{b I / (P - D)}$ as a probability.
-Then, the average number of new infection is $S \cdot \{1 - (1 - p)^{b I / (P - D)} \}$.
-Further, the process is stochastic, therefore 
+We use the discrete-time SIRD model but assume that the number of move between each category is stochastic and follows Poisson distribution.
 
 \begin{align}
- NI(t) &\sim \textup{Poisson}(S \cdot \{1 - (1 - p)^{b I / (P - D)} \})\\
+ NI(t) &\sim \textup{Poisson}(\frac{\beta I S}{P})\\
  NR(t) &\sim \textup{Poisson}(\gamma I)\\
  ND(t) &\sim \textup{Poisson}(\delta I)\\
  I(t+1) &= I(t) + NI(t) - NR(t) - ND(t)\\
@@ -85,13 +76,15 @@ Further, the process is stochastic, therefore
  R(t+1) &= R(t) + NR(t)\\
  D(t+1) &= D(t) + ND(t)
 \end{align}
+The regeneration rate $R$ is written by $\beta - \gamma - \delta$.
+When $R$ becomes $<0$ then the infection starts to decline.
 
 We cannot expect that these values are directly observable, because many (or most) cases are mild or asymptomatic.
 Therefore, we introduce the reporting rate $q$ and let the number of cumulative observed cases $C_{\text{obs}}$, recovered $R_{\text{obs}}$ and death $D_{\text{obs}}$ as
 \begin{align}
- NI_{\text{obs}}(t+1) &\sim \textup{Poisson}(q * NI(t))\\
- NR_{\text{obs}}(t+1) &\sim \textup{Poisson}(\gamma * I_{\text{obs}}(t))\\
- ND_{\text{obs}}(t+1) &\sim \textup{Poisson}(\delta * I_{\text{obs}}(t))\\
+ NI_{\text{obs}}(t+1) &\sim \textup{Poisson}(q NI(t))\\
+ NR_{\text{obs}}(t+1) &\sim \textup{Poisson}(\gamma I_{\text{obs}}(t))\\
+ ND_{\text{obs}}(t+1) &\sim \textup{Poisson}(\delta I_{\text{obs}}(t))\\
  I_{\text{obs}}(t+1) &= I_{\text{obs}}(t) + NI_{\text{obs}}(t+1) - NR_{\text{obs}}(t+1) - ND_{\text{obs}}(t+1)\\
  R_{\text{obs}}(t+1) &= R_{\text{obs}}(t) + NR_{\text{obs}}(t)\\
  D_{\text{obs}}(t+1) &= D_{\text{obs}}(t) + ND_{\text{obs}}(t)
@@ -100,12 +93,14 @@ Therefore, we introduce the reporting rate $q$ and let the number of cumulative 
 We assume that $b$ and $q$ change day to day bases while other parameters are fixed.
 To get a reasonable estimate, we assume prior distributions somewhat arbitrary chosen.
 \begin{gather}
- S(0) = I(0) \sim \textup{Gamma}(1, 1)\\
- b(0) \sim \textup{Gamma}(1, 1)\\
+ S(0) = I(0) \sim \textup{Student\_t}(3, 0, 1)\\
+ \beta(0) \sim \textup{Student\_t}(3, 0, 1)\\
  q(0) \sim \textup{Beta}(1, 1)\\
- b(t+1) \sim \textup{Gamma}(b(t), 1)\\
- q(t+1) \sim \textup{Beta}(q(t), 1-q(t))
+ \beta(t+1) \sim \textup{Student\_t}(3, \beta(t), \sigma_b)\\
+ q(t+1) \sim \textup{Beta}(\alpha_q q(t), \alpha_q(1 - q(t)))
 \end{gather}
+where $\sigma_b ~ \textup{Gamma}(1, 1)$ and $\alpha_q ~ \textup{Gamma}(1, 1)$.
+To make our model robust, we choose Student-t as a prior for $\beta$.
 
 % \subsection{Implementation}
 
@@ -116,7 +111,7 @@ To get a reasonable estimate, we assume prior distributions somewhat arbitrary c
 
 \subsection{Experiment}
 
-Data up to April 18 were drawn from data repository~\footnote{https://github.com/CSSEGISandData/COVID-19} by Johns Hopkins University Center for Systems Science and Engineering.
+Data up to April 26 were drawn from data repository~\footnote{https://github.com/CSSEGISandData/COVID-19} by Johns Hopkins University Center for Systems Science and Engineering.
 Nation-wide numbers of confirmed cases, recovered cases and death were obtained.
 
 These data were fed to Stan~\cite{carpenter2017stan} for Bayesian modeling and parameter inference.
@@ -130,36 +125,50 @@ For $NR(t)$ and $ND(t)$, we replaced stochastic laws to deterministic laws
 \end{align}
 to avoid a numerical issue.
 
-Parameter estimation used 100,000 iterations with 50,000 iterations for warm-up and 50,000 iterations for sampling.
+Parameter estimation used 2,000 iterations with 1,000 iterations for warm-up and 1,000 iterations for sampling.
 Four (default number of Stan) independent computations were performed simultaneously and used to check convergence.
 $\hat{R}$~\cite{vehtari2019rank}, which measures convergence, were excellent, within $\hat{R} < 1.1$ for all parameters. 
 
 To make sure that our results are meaningful, we compared the performance of our model with a model (we refer it by ``the constant model''), which assumes constant $b$ and $q$.
 Parameters were estimated for the constant model in the same way and LOO-CV, a standard measure of model performance, was compared.
-Because the exact computation of LOO-CV is computationally expensive, approximation PSIS-LOO-CV~\cite{Vehtari2017} is usually used.
-Unfortunately, the assumption based on PSIS-LOO-CV seems broken for our case according to diagnostic messages due to high Pareto-k.
-Therefore, we calculated LOO-CV directly by excluding data for a day, estimating parameters using the rest of the data and making a prediction of excluded data.
-Averaging errors of a prediction, we can obtain the LOO-CV value.
-The LOO-CV of our model was -2144.49497236, while the constant model was -2145.68817238. Therefore our model slightly outperformed the constant model.
+Because the exact computation of LOO-CV is computationally expensive, approximation PSIS-LOO-CV~\cite{Vehtari2017} and WAIC~\cite{watanabe2010asymptotic} were compared (Table~\ref{tbl:IC}).
+Our model outperforms the const model respect to both measures.
+However, the tool reported high Pareto-k for importance weight distribution, which indicates that the model is not robust and parameter estimate depends too much on specific data points.
+In such a case, both measure is not very reliable.
 
-Models and the computation history used for this experiment are public at GitHub~\footnote{https://github.com/yoriyuki/BayesianCOVID19/tree/paper-using-20200428-data/notebook}.
+
+\begin{table}[h]
+\begin{center}
+\begin{tabular}{lrr} \toprule
+Model & PSI-LOO & WAIC \\ \midrule 
+Const & 2643.40 &  3293.83 \\ 
+Daily Change & 654.07 & 607.195 \\
+\bottomrule\\
+\end{tabular}
+\caption{Comparison of PSIS-LOO and WAIC for each model.\\
+Const is the model with fixed $\beta$ and the reporting rate while Daily Change allows daily changes.  A model with a smaller score is better.}
+\label{tbl:IC}
+\end{center}
+\end{table}
+
+Models and the computation history used for this experiment are public at GitHub~\footnote{https://github.com/yoriyuki/BayesianCOVID19/tree/used-for-paper-v2/notebook}.
 
 \section{Results}
 
-Fig.~\ref{fig:b} shows an estimated contact frequency for each day.
+Fig.~\ref{fig:b} shows an estimated $R = \beta - \gamma - \delta$ for each day.
 Because the Bayesian estimation gives a distribution of parameters, the lower (25\% percentile) estimate is shown by a dotted green line, the median estimate is shown by a solid blue line and the upper (75\% percentile) is shown a broken orange line.
 \begin{figure}[h]
  \centering
- \includegraphics[width=\linewidth]{fig/b-Japan.png}
- \caption{ change over time of the contact frequency $b$}
+ \includegraphics[width=\linewidth]{fig/beta-Japan.png}
+ \caption{ change over time of $R$}
  \label{fig:b}
 \end{figure}
-The upward trend until mid. February is probably an artifact of a prior used for $b(0)$, which is low compared estimated $b(t)$.
-The downward trend until mid. March could be explained by public awareness and tracking effort of infection.
-After mid. March, the tracking effort could be overwhelmed, thus created an upward trend until the beginning of April, when ``the state of emergency'' was declared to major urban areas.
+The first downward trend until may not be very reliable because there is a few data for infection.
+The downward trend from the mid. February trend until the mid. March could be explained by public awareness and tracking effort of infection.
+After the mid. March, the tracking effort might be overwhelmed, thus created an upward trend until the beginning of April, when ``the state of emergency'' was declared to major urban areas.
 Since then, there was a slow downward trend, but it is unclear how long it will continue.
-It appears that ``the state of emergency'' only achieved the minimum contact frequency achieved around mid. March so far.
-Interestingly, the result clearly shows a weekly cycle of the contact frequency peaked on Thursday.
+It appears that ``the state of emergency'' only achieved the minimum $R$ achieved around the mid. March so far and still larger than 0.
+Therefore, we can predict that the infection will sill expand in future.
 
 \begin{figure}[h]
  \centering
@@ -172,25 +181,36 @@ Fig.~\ref{fig:q} shows an estimated reporting rate.
 The result is very noisy.
 It could suggest that the reported number is strongly influenced by reporting practice.
 
-\section{Discussion}
+We compare the result with Korea (Fig.~\ref{fig:b-China}) and China (Fig.~\ref{fig:b-Korea}).
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{fig/beta-Korea.png}
+    \caption{ change over time of $R$ in Korea}
+    \label{fig:b-Korea}
+\end{figure}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{fig/beta-China.png}
+    \caption{ change over time of $R$ in China}
+    \label{fig:b-China}
+\end{figure}
+Both show excellent convergence ($\hat{R}$) and model selection favors the daily-change model over the constant model.
+Both indicate clear downward trend and now $R < 0$, showing these countries are about exiting from epidemic.
 
-The universal applicability of our method is not clear.
-The model was applied to Korean and Italian data.
-However, the estimate did not converge in the case of Korea.
-Traces of Markov Chain Monte Carlo, on which method Stan is based, revealed that one trace did not change from the initial value at all.
-This would suggest a numerical problem in our model.
-For the Italian case, the estimate converged except the death rate.
-However, LOO-CV was worse than the constant model. Thus the result is not reliable.
+We also applied our method to Italy, for which the our method did not converge, and Pakistan, for which we need to exclude the data until Mar 1, 2020 to achieve convergence.
+Therefore, the results of these countries are not shown here.
+   
+\section{Discussion}
 
 There is a lot of room for improvement.
 First, the sensitivity analysis of Bayesian priors would be required.
-Also, the use of LOO-CV for model selection needs to be reconsidered because LOO-CV measures the model's prediction capability, but our goal is not a prediction.
-Further, we need to analyze the reason for the divergence in the case of Korea.
-Finally, we want to apply our method to more countries and compare the effectiveness of each country's policy. 
+We often encounter non-convergence for different data set and slightly different prior distribution, indicating non-robustness of our model.
+For reliable results, improvement of robustness would be required.
+Also, the use of PSI-LOO-CV and WAIC for model selection needs to be reconsidered, because both measure the model's prediction capability, but our goal is not a prediction.
 
 \section*{Acknowledgement}
 
-The author thanks to the Tokyo.R Slack group for many suggestions and advices on Bayesian modeling.
+The author thanks to Kentaro Matsura and the Tokyo.R Slack group for many suggestions and advices on Bayesian modeling.
 The author also thanks to Peter Turchin, from whose work the author's work started.
 
 \bibliographystyle{plain}
