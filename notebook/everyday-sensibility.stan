@@ -37,13 +37,13 @@ parameters {
     
     a ~ beta(1, 1);
     d ~ beta(1, 1);
-    b_beta ~ gamma(1, 1);
-    q_factor ~ gamma(1, 1);
-    init_inf ~ student_t(3, 100, 1);
+    b_beta ~ gamma(0.1, 0.1);
+    q_factor ~ gamma(0.1, 0.1);
+    init_inf ~ student_t(3, 1, 1);
     C0[1] ~ poisson(q[1] * init_inf);
     for (t in 1:T-1){
       if (t == 1){
-        b[t] ~ student_t(3, 0, 1);
+        b[t] ~ student_t(3, 0, 10);
         q[t] ~ beta(1, 1);
       } else {
         b[t] ~ student_t(3, b[t-1], b_beta);
