@@ -37,8 +37,8 @@ parameters {
     
     a ~ beta(1, 1);
     d ~ beta(1, 1);
-    b_beta ~ gamma(0.1, 0.1);
-    q_factor ~ gamma(0.1, 0.1);
+    b_beta ~ gamma(10, 10);
+    q_factor ~ gamma(10, 10);
     init_inf ~ student_t(3, 1, 1);
     C0[1] ~ poisson(q[1] * init_inf);
     for (t in 1:T-1){
