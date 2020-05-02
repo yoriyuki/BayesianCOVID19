@@ -35,10 +35,10 @@ Thus the effectiveness of these policies is questionable.
 Many people are still commuting to their office because many companies lack the necessary ability to allow their employees to work from home.
 Many small restaurants and cafes are still running their business because of the lack of financial compensation.
 
-In this paper, we apply a Bayesian method to estimate daily changes of $R$ (the regeneration rate of infection), which determines the speed of infection, and reporting rate.
-The result revealed a recent downward trend of $R$.
+In this paper, we apply a Bayesian method to estimate daily changes of $R0$, which determines the speed of infection, and reporting rate.
+The result revealed a recent downward trend of $R0$.
 Thus, although our analysis is preliminary, this may indicate that Japanese policy has some effect against COVID-19 infection.
-However, the reduction of $R$ only reaches the level of the minimum achieved around the mid-March, thus it would not be sufficient to prevent the spread of infection yet.
+However, the reduction of $R0$ only reaches the level of the minimum achieved around the mid-March, thus it would not be sufficient to prevent the spread of infection yet.
 
 \section{Related works}
 
@@ -76,8 +76,11 @@ We use the discrete-time SIRD model but assume that the number of move between e
  R(t+1) &= R(t) + NR(t)\\
  D(t+1) &= D(t) + ND(t)
 \end{align}
-The regeneration rate $R$ is written by $\beta - \gamma - \delta$.
-When $R$ becomes $<0$ then the infection starts to decline.
+The effective reproduction rate can be written
+\begin{equation}
+    R = \frac{\beta}{\gamma + \delta} \cdot \frac{S}{P}
+\end{equation}
+When $R$ becomes $<1$ then the infection starts to decline.
 
 We cannot expect that these values are directly observable, because many (or most) cases are mild or asymptomatic.
 Therefore, we introduce the reporting rate $q$ and let the number of cumulative observed cases $C_{\text{obs}}$, recovered $R_{\text{obs}}$ and death $D_{\text{obs}}$ as
@@ -154,11 +157,11 @@ Models and the computation history used for this experiment are public at GitHub
 
 \section{Results}
 
-Fig.~\ref{fig:b} shows an estimated $R = \beta/(\gamma+\delta)$ for each day.
+Fig.~\ref{fig:b} shows an estimated $R$ for each day.
 Because the Bayesian estimation gives a distribution of parameters, the lower (25\% percentile) estimate is shown by a dotted green line, the median estimate is shown by a solid blue line and the upper (75\% percentile) is shown a broken orange line.
 \begin{figure}[h]
  \centering
- \includegraphics[width=\linewidth]{fig/R0-Japan.png}
+ \includegraphics[width=\linewidth]{fig/R-Japan.png}
  \caption{ change over time of $R$}
  \label{fig:b}
 \end{figure}
@@ -183,13 +186,13 @@ It could suggest that the reported number is strongly influenced by reporting pr
 We compare the result with Korea (Fig.~\ref{fig:R-China}) and China (Fig.~\ref{fig:R-Korea}).
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{fig/R0-Korea.png}
+    \includegraphics[width=\linewidth]{fig/R-Korea.png}
     \caption{ change over time of $R$ in Korea}
     \label{fig:R-Korea}
 \end{figure}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{fig/R0-China.png}
+    \includegraphics[width=\linewidth]{fig/R-China.png}
     \caption{ change over time of $R$ in China}
     \label{fig:R-China}
 \end{figure}
