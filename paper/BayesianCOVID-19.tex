@@ -111,7 +111,7 @@ To make our model robust, we choose Student-t as a prior for $\beta$.
 
 \subsection{Experiment}
 
-Data up to April 26 were drawn from data repository~\footnote{https://github.com/CSSEGISandData/COVID-19} by Johns Hopkins University Center for Systems Science and Engineering.
+Data up to April 29 were drawn from data repository~\footnote{https://github.com/CSSEGISandData/COVID-19} by Johns Hopkins University Center for Systems Science and Engineering.
 Nation-wide numbers of confirmed cases, recovered cases and death were obtained.
 
 These data were fed to Stan~\cite{carpenter2017stan} for Bayesian modeling and parameter inference.
@@ -154,11 +154,11 @@ Models and the computation history used for this experiment are public at GitHub
 
 \section{Results}
 
-Fig.~\ref{fig:b} shows an estimated $R = \beta - \gamma - \delta$ for each day.
+Fig.~\ref{fig:b} shows an estimated $R = \beta/(\gamma+\delta)$ for each day.
 Because the Bayesian estimation gives a distribution of parameters, the lower (25\% percentile) estimate is shown by a dotted green line, the median estimate is shown by a solid blue line and the upper (75\% percentile) is shown a broken orange line.
 \begin{figure}[h]
  \centering
- \includegraphics[width=\linewidth]{fig/beta-Japan.png}
+ \includegraphics[width=\linewidth]{fig/R0-Japan.png}
  \caption{ change over time of $R$}
  \label{fig:b}
 \end{figure}
@@ -180,21 +180,21 @@ Fig.~\ref{fig:q} shows an estimated reporting rate.
 The result is very noisy.
 It could suggest that the reported number is strongly influenced by reporting practice.
 
-We compare the result with Korea (Fig.~\ref{fig:b-China}) and China (Fig.~\ref{fig:b-Korea}).
+We compare the result with Korea (Fig.~\ref{fig:R-China}) and China (Fig.~\ref{fig:R-Korea}).
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{fig/beta-Korea.png}
+    \includegraphics[width=\linewidth]{fig/R0-Korea.png}
     \caption{ change over time of $R$ in Korea}
-    \label{fig:b-Korea}
+    \label{fig:R-Korea}
 \end{figure}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\linewidth]{fig/beta-China.png}
+    \includegraphics[width=\linewidth]{fig/R0-China.png}
     \caption{ change over time of $R$ in China}
-    \label{fig:b-China}
+    \label{fig:R-China}
 \end{figure}
 Both show excellent convergence ($\hat{R}$) and model selection favors the daily-change model over the constant model.
-Both indicate clear downward trend and now $R < 0$, showing these countries are about exiting from the epidemic.
+Both indicate clear downward trend and now $R < 1$, showing these countries are about exiting from the epidemic.
 
 We also applied our method to Italy, for which the our method did not converge, and Pakistan, for which we need to exclude the data until Mar 1, 2020 to achieve convergence.
 Therefore, the results of these countries are not shown here.
