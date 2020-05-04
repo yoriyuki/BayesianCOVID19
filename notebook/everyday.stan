@@ -9,10 +9,10 @@ data {
 }
 parameters {
   real<lower=0> init_inf;
-  vector<lower=0>[T-2] b_beta;
+  real<lower=0> b_beta;
   vector<lower=0>[T-1] b;
   vector<lower=0, upper=1>[T-1] q;
-  vector<lower=0>[T-2] q_factor;
+  real<lower=0> q_factor;
   vector<lower=0>[T-1] NI;
   real<lower=0, upper=1> a;
   real<lower=0, upper=1> d;
@@ -37,6 +37,8 @@ parameters {
     
     a ~ beta(1, 1);
     d ~ beta(1, 1);
+    b_beta ~ gamma(1, 1);
+    q_factor ~ gamma(1, 1);
     init_inf ~ student_t(3, 0, 1);
     C0[1] ~ poisson(q[1] * init_inf);
     for (t in 1:T-1){
@@ -44,10 +46,8 @@ parameters {
         b[t] ~ student_t(3, 0, 1);
         q[t] ~ beta(1, 1);
       } else {
-        q_factor[t-1] ~ student_t(3, 0, 1);
-        b_beta[t-1] ~ gamma(1, 1);
-        b[t] ~ student_t(3, b[t-1], b_beta[t-1]);
-        q[t] ~ beta(q[t-1]*C[t-1]*q_factor[t-1], (1-q[t-1])*C[t-1]*q_factor[t-1]);
+        b[t] ~ student_t(3, b[t-1], b_beta);
+        q[t] ~ beta(q[t-1]*q_factor, (1-q[t-1])*q_factor);
       }
       growth = b[t] * I[t] * (1 - C[t]/P);
       NI[t] ~ normal(growth, sqrt(growth));
