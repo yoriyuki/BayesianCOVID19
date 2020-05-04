@@ -5,22 +5,27 @@ data {
   int C0[T]; // Cummulative infection
   int R0[T]; // Recovered
   int D0[T]; // Cummulative death
-
+  real b_beta_0;
 }
 parameters {
   real<lower=0> init_inf;
   real<lower=0> b_beta;
   vector<lower=0>[T-1] b;
-  vector<lower=0, upper=1>[T-1] q;
-  real<lower=0> q_factor;
+  // real<lower=0> q_sigma;
+  // vector<lower=0>[T-1] q_factor;
   vector<lower=0>[T-1] NI;
   real<lower=0, upper=1> a;
   real<lower=0, upper=1> d;
+  vector<lower=0, upper=1>[T-1] q;
   } transformed parameters {
     vector<lower=0>[T] I;
     vector<lower=0>[T] C;
     vector<lower=0>[T] R;
     vector<lower=0>[T] D;
+    
+    // for(t in 1:T-1){
+    //   q[t] = inv_logit(q_factor[t]);
+    // }
 
     I[1] = init_inf;
     C[1] = init_inf;
@@ -37,17 +42,14 @@ parameters {
     
     a ~ beta(1, 1);
     d ~ beta(1, 1);
-    b_beta ~ gamma(1, 1);
-    q_factor ~ gamma(1, 1);
+    b_beta ~ gamma(b_beta_0, 1);
     init_inf ~ student_t(3, 0, 1);
     C0[1] ~ poisson(q[1] * init_inf);
     for (t in 1:T-1){
       if (t == 1){
-        b[t] ~ student_t(3, 0, 1);
-        q[t] ~ beta(1, 1);
+        b[t] ~ student_t(3, 0, b_beta);
       } else {
         b[t] ~ student_t(3, b[t-1], b_beta);
-        q[t] ~ beta(q[t-1]*q_factor, (1-q[t-1])*q_factor);
       }
       growth = b[t] * I[t] * (1 - C[t]/P);
       NI[t] ~ normal(growth, sqrt(growth));
