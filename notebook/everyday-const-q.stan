@@ -42,7 +42,7 @@ parameters {
     C0[1] ~ poisson(q0 * init_inf);
     for (t in 1:T-1){
       if (t == 1){
-        b[t] ~ student_t(3, 0, 1);
+        b[t] ~ student_t(3, 0, b_beta);
       } else {
         b[t] ~ student_t(3, b[t-1], b_beta);
       }

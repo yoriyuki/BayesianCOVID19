@@ -1,7 +1,7 @@
 data {
   int<lower=0> T; // Time horizon
   int<lower=0> T0; // Leave one out
-  int<lower=0> P; // Population
+  real<lower=0> P; // Population
   int C0[T]; // Cummulative infection
   int R0[T]; // Recovered
   int D0[T]; // Cummulative death
