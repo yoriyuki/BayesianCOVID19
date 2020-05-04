@@ -47,7 +47,7 @@ parameters {
         q[t] ~ beta(1, 1);
       } else {
         b[t] ~ student_t(3, b[t-1], b_beta);
-        q[t] ~ beta(q[t-1]*q_factor, (1-q[t])*q_factor);
+        q[t] ~ beta(q[t-1]*q_factor, (1-q[t-1])*q_factor);
       }
       growth = b[t] * I[t] * (1 - C[t]/P);
       NI[t] ~ normal(growth, sqrt(growth));
