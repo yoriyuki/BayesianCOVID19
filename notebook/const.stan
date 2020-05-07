@@ -3,7 +3,6 @@ data {
   int<lower=0> T0; // Leave one out
   real<lower=0> P; // Population
   int C0[T]; // Cummulative infection
-  int R0[T]; // Recovered
   int D0[T]; // Cummulative death
 
 }
@@ -13,7 +12,7 @@ parameters {
   real<lower=0, upper=1> q;
   vector<lower=0>[T-1] NI;
 
-  real<lower=0, upper=1> a;
+  // real<lower=0, upper=1> a;
   real<lower=0, upper=1> d;
   } transformed parameters {
     vector<lower=0>[T] I;
@@ -26,28 +25,28 @@ parameters {
     R[1] = 0;
     D[1] = 0;
     for(t in 1:T-1){
-       I[t+1] = I[t] + NI[t] - (a+d) * I[t];
+       I[t+1] = I[t] + NI[t] - (0.04+d) * I[t];
        C[t+1] = C[t] + NI[t];
-       R[t+1] = R[t] + a * I[t];
+       R[t+1] = R[t] + 0.04 * I[t];
        D[t+1] = D[t] + d * I[t];
     }
   } model {
     real growth;
+    real R0;
     
-    a ~ beta(1, 1);
     d ~ beta(1, 1);
     b ~ student_t(3, 0, 1);
-
     q ~ beta(1, 1);
     C0[1] ~ poisson(q * init_inf);
+    R0 = 0;
     for (t in 1:T-1){
       growth = b * I[t] * (1 - C[t]/P);
       NI[t] ~ normal(growth, sqrt(growth));
       if (t != T0){
         C0[t+1] - C0[t] ~ poisson(q * NI[t]);
-        D0[t+1] - D0[t] ~ poisson(d * (C0[t] - R0[t] - D0[t]));   
-        R0[t+1] - R0[t] ~ poisson(a * (C0[t] - R0[t] - D0[t]));
+        D0[t+1] - D0[t] ~ poisson(d*(C0[t]-R0-D0[t]));   
       }
+      R0 = R0 + 0.04*(C0[t]-R0-D0[t]);
     }
 }
 generated quantities {
