@@ -34,7 +34,7 @@ parameters {
     real R0;
     
     // d ~ beta(1, 1);
-    b_beta ~ gamma(b_beta_0*b_beta, b_beta);
+    b_beta ~ exponential(b_beta_0);
 
     init_inf ~ student_t(3, 0, 1);
     C0[1] ~ poisson(q[1] * init_inf);
