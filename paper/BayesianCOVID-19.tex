@@ -83,7 +83,7 @@ We use the discrete-time SIR model but assume that the number of move between ea
 \begin{align}
  NI(t) &\sim \textup{Poisson}(\frac{\beta I S}{P})\\
  NR(t) &\sim \textup{Poisson}(\gamma I)\\
- I(t+1) &= I(t) + NI(t) - NR(t) - ND(t)\\
+ I(t+1) &= I(t) + NI(t) - NR(t)\\
  S(t+1) &= S(t) - NI(t)\\
  R(t+1) &= R(t) + NR(t)
 \end{align}
@@ -150,7 +150,7 @@ Because the exact computation of LOO-CV is computationally expensive, approximat
 Further, we check the reliability of these estimation by checking the Pareto-k for the importance weight distribution.
 The computation of PSIS-LOO-CV and WAIC is performed by ArviZ~\cite{arviz2019}.
 
-Models and the computation history used for this experiment are public at GitHub~\footnote{https://github.com/yoriyuki/BayesianCOVID19/tree/used-for-paper-v2/notebook}.
+Models and the computation history used for this experiment are public at GitHub~\footnote{https://github.com/yoriyuki/BayesianCOVID19/tree/paper-version-3/notebook}.
 
 \section{Results}
 
